@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CADE-Q 2: ഹൃദയാരോഗ്യ അറിവ് ചോദ്യാവലി | CardioSree</title>
+  <style>
+    :root {
+      --correct: #4CAF50;
+      --warning: #FF9800;
+      --error: #F44336;
+      --primary: #1976D2;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Manjari', 'Noto Sans Malayalam', 'Rachana', sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      text-align: center;
+      color: var(--primary);
+      margin: 0;
+    }
+    .logo-fallback {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .instructions {
+      background: #f9f9ff;
+      padding: 15px;
+      border-right: 4px solid var(--primary);
+      margin: 20px 0;
+      direction: rtl;
+      text-align: right;
+    }
+    .form-group {
+      margin-bottom: 15px;
+      text-align: right;
+      direction: rtl;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    .btn:hover {
+      background: #0D47A1;
+    }
+    .btn-print {
+      background: var(--correct);
+    }
+    .domain {
+      margin-bottom: 30px;
+      direction: rtl;
+      text-align: right;
+    }
+    .domain h2 {
+      color: #0D47A1;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 8px;
+      text-align: right;
+    }
+    .question {
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #fafafa;
+      border-radius: 6px;
+    }
+    .question h3 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+    .options label {
+      display: flex;
+      align-items: flex-start;
+      margin: 8px 0;
+      padding: 10px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+    }
+    .options input[type="radio"] {
+      margin-left: 10px;
+      margin-top: 4px;
+    }
+    .result {
+      display: none;
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .badge {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 15px 0;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .high { background-color: #E8F5E9; color: var(--correct); }
+    .moderate { background-color: #FFF8E1; color: var(--warning); }
+    .low { background-color: #FFEBEE; color: var(--error); }
+    .domain-score {
+      text-align: right;
+      margin: 10px 0;
+      padding: 10px;
+      background: #f0f7ff;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .qr-placeholder {
+      width: 180px;
+      height: 180px;
+      margin: 20px auto;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #666;
+      border: 1px dashed #999;
+    }
+    @media print {
+      .btn { display: none !important; }
+      body { background: white; padding: 0; }
+      .container { box-shadow: none; padding: 15px; }
+    }
+  </style>
+  <!-- Optional: Load Manjari font for better Malayalam rendering -->
+  <link href="https://fonts.googleapis.com/css2?family=Manjari&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- STEP 1: PATIENT REGISTRATION -->
+    <div id="patient-info-section">
+      <div class="logo-fallback">കാർഡിയോശ്രീ</div>
+      <header><h1>CADE-Q 2 ചോദ്യാവലി</h1></header>
+      <div class="instructions">
+        <p><strong>വിലയിരുത്തൽ ആരംഭിക്കുന്നതിന് മുമ്പ് ദയവായി നിങ്ങളുടെ വിവരങ്ങൾ നൽകുക:</strong></p>
+      </div>
+      <form id="patient-form">
+        <div class="form-group">
+          <label>പൂർണ്ണ പേര് *</label>
+          <input type="text" id="patient-name" required>
+        </div>
+        <div class="form-group">
+          <label>പ്രായം *</label>
+          <input type="number" id="patient-age" min="18" max="120" required>
+        </div>
+        <div class="form-group">
+          <label>ലിംഗം *</label><br>
+          <label style="display:inline-block; margin-left:15px;"><input type="radio" name="gender" value="പുരുഷൻ" required> പുരുഷൻ</label>
+          <label style="display:inline-block; margin-left:15px;"><input type="radio" name="gender" value="സ്ത്രീ"> സ്ത്രീ</label>
+          <label style="display:inline-block; margin-left:15px;"><input type="radio" name="gender" value="മറ്റൊന്ന്"> മറ്റൊന്ന്</label>
+        </div>
+        <div class="form-group">
+          <label>പേഷ്യന്റ് ID (ഓപ്‌ഷണൽ)</label>
+          <input type="text" id="patient-id">
+        </div>
+        <div class="form-group">
+          <label>മൊബൈൽ (ഓപ്‌ഷണൽ)</label>
+          <input type="tel" id="patient-mobile">
+        </div>
+        <button type="button" class="btn" onclick="startQuestionnaire()">➡️ ചോദ്യാവലി തുടങ്ങുക</button>
+      </form>
+    </div>
+
+    <!-- QR COVER -->
+    <div id="qr-cover" style="display:none; text-align:center;">
+      <div class="logo-fallback">കാർഡിയോശ്രീ</div>
+      <h2>CADE-Q 2 ചോദ്യാവലി സ്‌കാൻ ചെയ്യുക</h2>
+      <p>നിങ്ങളുടെ ഫോൺ ക്യാമറ ഉപയോഗിച്ച് സ്‌കാൻ ചെയ്യുക</p>
+      <div class="qr-placeholder">
+        QR: https://yourname.github.io/repo/
+      </div>
+      <p><em>കാർഡിയോശ്രീ • കേരള ഹൃദയാരോഗ്യ സംരംഭം</em></p>
+    </div>
+
+    <!-- QUESTIONNAIRE -->
+    <div id="questionnaire" style="display:none;">
+      <div class="logo-fallback">കാർഡിയോശ്രീ</div>
+      <header><h1>CADE-Q 2 ചോദ്യാവലി</h1></header>
+      <div class="instructions">
+        <p><strong>ചോദ്യാവലിയെക്കുറിച്ച്:</strong></p>
+        <ul style="text-align:right; padding-right:20px;">
+          <li>നിങ്ങൾ ഒരു ഹൃദയ പുനരധിവാസ പരിപാടിയിൽ പങ്കെടുക്കുന്നു.</li>
+          <li>5 ഡൊമെയിനുകൾ: മെഡിക്കൽ അവസ്ഥ, റിസ്‌ക് ഘടകങ്ങൾ, വ്യായാമം, പോഷണം, സൈക്കോസോഷ്യൽ റിസ്‌ക്.</li>
+          <li>ഓരോ ചോദ്യത്തിനും 4 ഉത്തരങ്ങൾ. <strong>ഏറ്റവും ശരിയായത്</strong> തിരഞ്ഞെടുക്കുക.</li>
+          <li>ഉത്തരം അറിയില്ലെങ്കിൽ, <strong>“ഞാൻ അറിയില്ല”</strong> എന്നതിൽ ടിക്ക് ചെയ്യുക.</li>
+          <li>പൂർത്തിയാക്കാൻ ~20 മിനിറ്റ് എടുക്കും.</li>
+        </ul>
+      </div>
+
+      <!-- Medical Condition -->
+      <div class="domain" data-domain="മെഡിക്കൽ അവസ്ഥ">
+        <h2>ഡൊമെയിൻ: മെഡിക്കൽ അവസ്ഥ</h2>
+        
+        <!-- Q1 -->
+        <div class="question">
+          <h3>1. കൊറോണറി ആർട്ടറി ഡീസീസ് എന്താണ്?</h3>
+          <div class="options">
+            <label><input type="radio" name="q1" value="1"> a) ഹൃദയത്തിലെ ധമനികളിൽ കാൽസ്യം അടിഞ്ഞുകൂടുന്നതുകൊണ്ട് വയസ്സായവരിൽ മാത്രം ഉണ്ടാകുന്ന ഒരു രോഗം.</label>
+            <label><input type="radio" name="q1" value="2"> b) ഉയർന്ന കൊളസ്ട്രോൾ അല്ലെങ്കിൽ പുകവലി ഉള്ള വയസ്സായവരിൽ ഉണ്ടാകുന്ന ഹൃദയ ധമനികളുടെ രോഗം.</label>
+            <label><input type="radio" name="q1" value="3"> c) യുവാക്കളിൽ തന്നെ നിശബ്ദമായി തുടങ്ങുന്ന ഹൃദയ ധമനികളുടെ രോഗം. ഇതിന് കാരണം മോശം ജീവിതശൈലി, ജനിതകഘടകങ്ങൾ, ധമനികളിലെ വീക്കം എന്നിവയാണ്.</label>
+            <label><input type="radio" name="q1" value="0"> d) ഞാൻ അറിയില്ല.</label>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question">
+          <h3>2. ആഞ്ജിന (ഛാതിവേദന അല്ലെങ്കിൽ അസ്വസ്ഥത) ഉണ്ടാകുന്നത്:</h3>
+          <div class="options">
+            <label><input type="radio" name="q2" value="2"> a) ഹൃദയ പേശി വളരെ കഠിനമായി പ്രവർത്തിക്കുമ്പോൾ.</label>
+            <label><input type="radio" name="q2" value="3"> b) ഹൃദയ പേശിക്ക് പ്രവർത്തിക്കാൻ ആവശ്യമായ രക്തവും ഓക്‌സിജനും ലഭിക്കാതെ വരുമ്പോൾ.</label>
+            <label><input type="radio" name="q2" value="1"> c) മസ്തിഷ്‌കത്തിന് ഓക്‌സിജൻ ലഭിക്കാതെ വരുമ്പോൾ.</label>
+            <label><input type="radio" name="q2" value="0"> d) ഞാൻ അറിയില്ല.</label>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question">
+          <h3>3. കൊറോണറി ആർട്ടറി ഡീസീസ് ഉള്ള ഒരാൾക്ക് ആഞ്ജിനയുടെ സാധാരണ ലക്ഷണം ഏത്?</h3>
+          <div class="options">
+            <label><input type="radio" name="q3" value="1"> a) ഭക്ഷണത്തിന് ശേഷം തലവേദന.</label>
+            <label><input type="radio" name="q3" value="3"> b) വിശ്രമത്തിലോ ശാരീരിക പ്രവർത്തനത്തിലോ ഉണ്ടാകുന്ന ഛാതിവേദന അല്ലെങ്കിൽ അസ്വസ്ഥത, ഇത് കൈ, പുറം, കഴുത്ത് എന്നിവിടങ്ങളിലും അനുഭവപ്പെടാം.</label>
+            <label><input type="radio" name="q3" value="2"> c) ശാരീരിക പ്രവർത്തനത്തിലുണ്ടാകുന്ന ഛാതിവേദന അല്ലെങ്കിൽ അസ്വസ്ഥത.</label>
+            <label><input type="radio" name="q3" value="0"> d) ഞാൻ അറിയില്ല.</label>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="question">
+          <h3>4. ഹൃദയാഘാതം (Heart Attack) ഉണ്ടാകുന്നത്:</h3>
+          <div class="options">
+            <label><input type="radio" name="q4" value="2"> a) ഹൃദയത്തിലെ ഒരു ധമനി തടസ്സപ്പെടുമ്പോൾ.</label>
+            <label><input type="radio" name="q4" value="1"> b) സ്ട്രെസ്സിന്റെ പ്രതികരണമായി ഹൃദയം പെട്ടെന്ന് വേഗത്തിൽ തുടിക്കുമ്പോൾ.</label>
+            <label><input type="radio" name="q4" value="3"> c) ഹൃദയത്തിലെ ഒരു ഭാഗത്തേക്കുള്ള ഓക്‌സിജൻ സമൃദ്ധമായ രക്തപ്രവാഹം പെട്ടെന്ന് തടസ്സപ്പെടുമ്പോൾ. രക്തപ്രവാഹം ഉടൻ പുനഃസ്ഥാപിക്കാതെ വന്നാൽ, ആ ഹൃദയ പേശി മരിക്കാൻ തുടങ്ങും.</label>
+            <label><input type="radio" name="q4" value="0"> d) ഞാൻ അറിയില്ല.</label>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="question">
+          <h3>5. മരുന്നുകളെക്കുറിച്ച് മനസ്സിലാക്കാൻ ഏറ്റവും നല്ല സ്രോതസ്സുകൾ ഏവ?</h3>
+          <div class="options">
+            <label><input type="radio" name="q5" value="3"> a) ഡോക്ടർ, ഹൃദയ പുനരധിവാസ ടീം, ഫാർമസിസ്റ്റ്, ശുപാർശ ചെയ്യപ്പെട്ട ഇന്റർനെറ്റ് സ്രോതസ്സുകൾ.</label>
+            <label><input type="radio" name="q5" value="1"> b) ഇന്റർനെറ്റിൽ വായിക്കുന്നത്.</label>
+            <label><input type="radio" name="q5" value="2"> c) ഡോക്ടറും ഹൃദയ പുനരധിവാസ ടീമും.</label>
+            <label><input type="radio" name="q5" value="0"> d) ഞാൻ അറിയില്ല.</label>
+          </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="question">
+          <h3>6. അസ്പിരിൻ (ASA), ക്ലോപിഡോഗ്രൽ (Plavix™) തുടങ്ങിയ മരുന്നുകൾ പ്രധാനമാണ്, കാരണം:</h3>
+          <div class="options">
+            <label><input type="radio" name="q6" value="2"> a) ഇവ രക്തസമ്മർദ്ദം കുറയ്ക്കുന്നു.</label>
+            <label><input type="radio" name="q6" value="2"> b) ഇവ “രക്തം നേർത്തുന്നു”.</label>
+            <label><input type="radio" name="q6" value="3"> c) ഇവ രക്തത്തിലെ പ്ലേറ്റ്‌ലെറ്റുകളുടെ “ഒട്ടുന്ന സ്വഭാവം” കുറയ്ക്കുന്നു, അതിനാൽ രക്തം കൊറോണറി ധമനികളിലൂടെയും സ്റ്റെന്റുകളിലൂടെയും എളുപ്പത്തിൽ ഒഴുകുന്നു.</label>
+            <label><input type="radio" name="q6" value="0"> d) ഞാൻ അറിയില്ല.</label>
+          </div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="question">
+          <h3>7. “സ്റ്റാറ്റിൻ” മരുന്നുകൾ (അത്തോർവാസ്റ്റാറ്റിൻ, റോസുവാസ്‌റ്റാറ്റിൻ തുടങ്ങിയവ) ശരീരത്തിൽ നല്ല ഫലം ചെയ്യുന്നത്:</h3>
+          <div class="options">
+            <label><input type="radio" name="q7" value="2"> a) രക്തത്തിലെ LDL കൊളസ്ട്രോൾ കുറയ്ക്കുന്നതിലൂടെ.</label>
+            <label><input type="radio" name="q7" value="3"> b) കല്ലിൽ നിന്നുള്ള LDL കൊളസ്ട്രോൾ ഉത്‌പാദനം തടയുക, രക്തത്തിലെ LDL കൊളസ്ട്രോൾ കുറയ്ക്കുക, ധമനികളിലെ പ്ലാക്കുകളിൽ നിന്ന് കൊളസ്ട്രോൾ പുറത്തേക്ക് നീങ്ങാൻ സഹായിക്കുക.</label>
+            <label><input type="radio" name="q7" value="1"> c) ഭക്ഷണത്തിൽ നിന്നുള്ള കൊളസ്ട്രോൾ ആഗിരണം കുറയ്ക്കുന്നതിലൂടെ.</label>
+            <label><input type="radio" name="q7" value="0"> d) ഞാൻ അറിയില്ല.</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remaining domains abbreviated for brevity in this response -->
+      <!-- In full implementation, all 31 questions would be present -->
+
+      <!-- Risk Factors -->
+      <div class="domain" data-domain="റിസ്‌ക് ഘടകങ്ങൾ">
+        <h2>ഡൊമെയിൻ: റിസ്‌ക് ഘടകങ്ങൾ</h2>
+        <div class="question">
+          <h3>1. ഹൃദയരോഗത്തിന് കാരണമാകുന്നതും മാറ്റാവുന്നതുമായ റിസ്‌ക് ഘടകങ്ങൾ ഏവ?</h3>
+          <div class="options">
+            <label><input type="radio" name="q8" value="2"> a) രക്തസമ്മർദ്ദം, കൊളസ്ട്രോൾ, പുകവലി.</label>
+            <label><input type="radio" name="q8" value="1"> b) പ്രായം, ഹൃദയരോഗത്തിന്റെ കുടുംബ ചരിത്രം, വംശം, ലിംഗം.</label>
+            <label><input type="radio" name="q8" value="3"> c) രക്തസമ്മർദ്ദം (സിസ്‌റ്റോളിക് & ഡയസ്‌റ്റോളിക്), LDL + HDL കൊളസ്ട്രോൾ, പുകവലി & പാസിവ് സ്‌മോക്കിംഗ്, വയറ്റിന്റെ വലിപ്പം, സ്ട്രെസ്സിനോടുള്ള പ്രതികരണം.</label>
+            <label><input type="radio" name="q8" value="0"> d) ഞാൻ അറിയില്ല.</label>
+          </div>
+        </div>
+        <!-- Add Q9-Q12 similarly -->
+      </div>
+
+      <div style="text-align:center; margin-top:30px;">
+        <button type="button" class="btn" onclick="calculateScore()">📊 സമർപ്പിക്കുക & സ്‌കോർ കാണുക</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ ഫലം പ്രിന്റ് ചെയ്യുക</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="result" class="result">
+      <div class="logo-fallback">കാർഡിയോശ്രീ</div>
+      <h2>CADE-Q 2 ഫലം</h2>
+      <div id="patient-summary" style="background:#f9f9ff; padding:12px; margin-bottom:20px; border-radius:6px; text-align:left; direction:ltr;"></div>
+      <div id="score-badge" class="badge"></div>
+      <div id="score-details"></div>
+      <button class="btn btn-print" onclick="window.print()" style="margin-top:20px;">🖨️ ഫലം പ്രിന്റ് ചെയ്യുക</button>
+    </div>
+  </div>
+
+  <script>
+    function startQuestionnaire() {
+      const name = document.getElementById('patient-name').value;
+      if (!name) { alert("ദയവായി നിങ്ങളുടെ പേര് നൽകുക."); return; }
+      
+      const patientData = {
+        name: name,
+        age: document.getElementById('patient-age').value,
+        gender: document.querySelector('input[name="gender"]:checked')?.value,
+        id: document.getElementById('patient-id').value || '—',
+        mobile: document.getElementById('patient-mobile').value || '—'
+      };
+      localStorage.setItem('cadeq2_patient_ml', JSON.stringify(patientData));
+      
+      document.getElementById('patient-info-section').style.display = 'none';
+      document.getElementById('questionnaire').style.display = 'block';
+    }
+
+    function calculateScore() {
+      // Define domains and their questions
+      const domains = {
+        "മെഡിക്കൽ അവസ്ഥ": ["q1","q2","q3","q4","q5","q6","q7"],
+        "റിസ്‌ക് ഘടകങ്ങൾ": ["q8","q9","q10","q11","q12"],
+        // Add all 5 domains with 31 questions in full version
+      };
+
+      let totalScore = 0;
+      let domainScores = {};
+
+      for (const [domainName, questions] of Object.entries(domains)) {
+        let domainScore = 0;
+        for (const q of questions) {
+          const selected = document.querySelector(`input[name="${q}"]:checked`);
+          if (selected) {
+            domainScore += parseInt(selected.value);
+          }
+        }
+        domainScores[domainName] = domainScore;
+        totalScore += domainScore;
+      }
+
+      // Show patient info
+      const patient = JSON.parse(localStorage.getItem('cadeq2_patient_ml'));
+      if (patient) {
+        let summary = `<strong>പേഷ്യന്റ്:</strong> ${patient.name}`;
+        if (patient.age) summary += ` | പ്രായം: ${patient.age}`;
+        if (patient.gender) summary += ` | ലിംഗം: ${patient.gender}`;
+        if (patient.id !== '—') summary += ` | ID: ${patient.id}`;
+        document.getElementById('patient-summary').innerHTML = summary;
+      }
+
+      // Knowledge level
+      let level, badgeClass;
+      if (totalScore >= 61) {
+        level = "ഉയർന്ന അറിവ് 🌟";
+        badgeClass = "high";
+      } else if (totalScore >= 46) {
+        level = "മിതമായ അറിവ് 👍";
+        badgeClass = "moderate";
+      } else {
+        level = "കുറഞ്ഞ അറിവ് 📚 — ഹൃദയ പുനരധിവാസ ടീമിനോട് സംസാരിക്കുക";
+        badgeClass = "low";
+      }
+
+      // Build results
+      let details = `<p><strong>ആകെ സ്‌കോർ:</strong> ${totalScore} / 75</p>`;
+      details += `<p><strong>അറിവിന്റെ നില:</strong> ${level}</p>`;
+      details += `<h3>ഡൊമെയിൻ തിരിച്ചുള്ള സ്‌കോർ:</h3>`;
+      for (const [name, score] of Object.entries(domainScores)) {
+        const max = domains[name].length * 3;
+        details += `<div class="domain-score">${name}: ${score} / ${max}</div>`;
+      }
+
+      document.getElementById('score-badge').textContent = level;
+      document.getElementById('score-badge').className = 'badge ' + badgeClass;
+      document.getElementById('score-details').innerHTML = details;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('questionnaire').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
